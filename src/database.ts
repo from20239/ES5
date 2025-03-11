@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { UserModel } from './models/user';
-import { TodoModel } from './models/todo'; 
+import { SubjectModel } from './models/subject'; 
 
 // Conexión a la base de datos (cambiar según tu configuración)
 const mongoURI = 'mongodb://localhost:27017/ea-restapi';  
@@ -19,7 +19,9 @@ export async function populateDatabase() {
     try {
         // Eliminar todos los documentos actuales
         await UserModel.deleteMany({});
-        await TodoModel.deleteMany({});
+
+        await SubjectModel.deleteMany({});
+        console.log('Existing data cleared');
 
         // Crear usuarios de ejemplo
         const user1 = new UserModel({
@@ -40,30 +42,26 @@ export async function populateDatabase() {
         const savedUser1 = await user1.save();
         const savedUser2 = await user2.save();
 
-        // Crear Todos de ejemplo asociadas a los usuarios
-        const todo1 = new TodoModel({
-            user: savedUser1._id,  // Referencia al user1
-            name: 'Complete project',
-            completed: false
-        });
+       // 创建示例课程
+       const subject1 = new SubjectModel({
+        name: 'Mathematics', // 课程名称
+        teacher: 'Dr. Smith', // 教师
+        alumni: [savedUser1._id, savedUser2._id] // 关联示例用户
+    });
 
-        const todo2 = new TodoModel({
-            user: savedUser1._id,  // Referencia al user1
-            name: 'Buy groceries',
-            completed: false
-        });
+    const subject2 = new SubjectModel({
+        name: 'Physics', // 课程名称
+        teacher: 'Dr. Johnson', // 教师
+        alumni: [savedUser1._id] // 关联示例用户
+    });
 
-        const todo3 = new TodoModel({
-            user: savedUser2._id,  // Referencia al user2
-            name: 'Schedule meeting',
-            completed: true
-        });
+    // 保存示例课程
+    await subject1.save();
+    await subject2.save();
 
-        // Guardar los todos en la base de datos
-        const savedTodo1 = await todo1.save();
-        const savedTodo2 = await todo2.save();
-        const savedTodo3 = await todo3.save();
+    console.log('Subjects saved');
 
+        console.log('Database populated with sample data');
         
     } catch (error) {
         console.error('Error populating the database: ', error);
